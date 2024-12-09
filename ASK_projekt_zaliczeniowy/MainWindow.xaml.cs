@@ -69,7 +69,6 @@ namespace ASK_projekt_zaliczeniowy
             BPView.Text = bp;
             DISPView.Text = disp;
         }
-        
 
         /// 1. Przycisk Przypisz
         private void SaveRegister_Click(object sender, RoutedEventArgs e)
@@ -160,7 +159,6 @@ namespace ASK_projekt_zaliczeniowy
             // Czyszczenie wartości
             ax = bx = cx = dx = si = di = bp = disp = "0000";
             AXView.Text = BXView.Text = CXView.Text = DXView.Text = SIView.Text = DIView.Text = BPView.Text = DISPView.Text = "0000";
-            ClearInputs();
             LogList.Items.Clear();
             // Dodaj wpis do logu
             LogList.Items.Add("---Reset---");
@@ -331,14 +329,31 @@ namespace ASK_projekt_zaliczeniowy
 
         }
 
-        /// n. Przycisk Random /
-            //Do zrobienia !!!
+        /// 5. Przycisk Random /
+        private void RandomClick(object sender, RoutedEventArgs e)
+        {
+            Random dice = new Random();
+
+            AXInput.Text = ((ushort)dice.Next(0, 65536)).ToString("X4");
+            BXInput.Text = ((ushort)dice.Next(0, 65536)).ToString("X4");
+            CXInput.Text = ((ushort)dice.Next(0, 65536)).ToString("X4");
+            DXInput.Text = ((ushort)dice.Next(0, 65536)).ToString("X4");
+
+            UpdateRegsView();
+        }
+
+        /// 6. Przycisk Wyczyść
+        private void ClearClick(object sender, RoutedEventArgs e)
+        {
+            ClearInputs();
+        }
 
         private string? StringHEX(string s)
         {
             ushort rec;
-            if (ushort.TryParse(s, System.Globalization.NumberStyles.HexNumber, null,out rec)) return rec.ToString("X4");
+            if (ushort.TryParse(s, System.Globalization.NumberStyles.HexNumber, null,out rec)) return s;
             else return null;
+            
         }
     }
 }

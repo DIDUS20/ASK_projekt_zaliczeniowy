@@ -6,13 +6,13 @@
         xmlns:local="clr-namespace:ASK_projekt_zaliczeniowy"
         mc:Ignorable="d"
         Title="Emulator Rozkazów 8086" 
-        Height="500" Width="1100"
-        MinHeight="500" MaxHeight="500"
+        Height="600" Width="1100"
+        MinHeight="600" MaxHeight="600"
         MinWidth="1100" MaxWidth="1100"
         >
     <Grid Margin="10,10,10,10">
         <!-- Sekcja edycji rejestrów -->
-        <GroupBox FontSize="14" Margin="0,10,789,0"  MaxWidth="325">
+        <GroupBox FontSize="14" Margin="0,0,789,0"  MaxWidth="325">
             <Grid Margin="10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="50" />
@@ -20,6 +20,9 @@
                     <ColumnDefinition Width="100" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -85,9 +88,9 @@
                                 <RowDefinition Height="40"/>
                                 <RowDefinition Height="10"/>
                                 <RowDefinition Height="40"/>
-                                
+
                             </Grid.RowDefinitions>
-                            
+
                             <!-- MOV -->
                             <ComboBox x:Name="SrcMOV"  Grid.Row="0" Grid.Column="0" Width="50" Margin="0,0,10,0"/>
                             <Label Content="→" Grid.Row="0" Grid.Column="1"  VerticalAlignment="Center" />
@@ -99,17 +102,22 @@
                             <Label Content="↔" Grid.Row="2" Grid.Column="1"  VerticalAlignment="Center" />
                             <ComboBox x:Name="DestXCHG" Grid.Row="2" Grid.Column="2" Width="50" Margin="10,0,0,0"/>
                             <Button Content="XCHG" Grid.Row="2" Grid.Column="3" Click="XCHGClick" Margin="5"/>
-
+                            
                         </Grid>
-                        
                     </StackPanel>
                 </GroupBox>
                 
+                <!-- Przycisk resetowania rejestrów i randomizacji wejść -->
+                <Button Content="Reset" Grid.Row="9" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="150" Margin="5" Click="ResetClick"/>
+                <Button Content="Random" Grid.Row="10" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="150" Margin="5" Click="RandomClick"/>
+                <Button Content="Wyczyść" Grid.Row="11" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="150" Margin="5" Click="ClearClick"/>
+                
             </Grid>
+            
         </GroupBox>
 
         <!-- Sekcja widoku rejestrów -->
-        <GroupBox FontSize="14" Header="Widok Wartości" Margin="568,0,368,0">
+        <GroupBox FontSize="14" Header="Widok Wartości" Margin="568,-10,368,0">
             <Grid Margin="10" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="50" />
@@ -167,14 +175,13 @@
 
 
         <!-- Sekcja logów operacji -->
-        <GroupBox Header="Rejestr Operacji" FontSize="14" Margin="905,0,0,0" HorizontalAlignment="Left" Width="175">
+        <GroupBox Header="Rejestr Operacji" FontSize="14" Margin="905,-10,0,0" HorizontalAlignment="Left" Width="175">
             <Grid>
                 <ListBox x:Name="LogList" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10" MaxWidth="200"/>
             </Grid>
         </GroupBox>
 
-        <!-- Przycisk resetowania rejestrów -->
-        <Button Content="Reset" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="150" Margin="10" Click="ResetClick"/>
+        
     </Grid>
 </Window>
 
