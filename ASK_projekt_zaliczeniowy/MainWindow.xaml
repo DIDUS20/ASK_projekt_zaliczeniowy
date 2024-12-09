@@ -5,39 +5,137 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ASK_projekt_zaliczeniowy"
         mc:Ignorable="d"
-        Title="Emulator rozkazów Intel 8086" MinHeight="600" MinWidth="1010">
-    <Grid>
-        <StackPanel
-            Margin="0,40,755,0"
-            Background="#FF7FA36B">
-            <TextBlock Text="Adresowanie Bazowe" FontSize="15pt"/>
-        </StackPanel>
-        <StackPanel
-            Width="250"
-            Margin="255,40,505,0"
-            Background="#FF7FA36B">
-            <TextBlock Text="Adresowanie Indeksowe" FontSize="15pt"/>
-        </StackPanel>
-        <StackPanel
-            Margin="505,40,186,0"
-            Background="#FF7FA36B">
-            <TextBlock Text="Adresowanie Indeksowo-Bazowe" FontSize="15pt"/>
-        </StackPanel>
-        <StackPanel
-            Margin="824,40,0,0"
-            Background="#FF7FA36B">
+        Title="Emulator Rozkazów 8086" 
+        Height="500" Width="1100"
+        MinHeight="500" MaxHeight="500"
+        MinWidth="1100" MaxWidth="1100"
+        >
+    <Grid Margin="10,10,10,10">
+        <!-- Sekcja edycji rejestrów -->
+        <GroupBox Header="Edycja" FontSize="14" Margin="0,0,757,0" Width="325" MinWidth="325" MaxWidth="325">
+            <Grid Margin="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50" />
+                    <ColumnDefinition Width="150" />
+                    <ColumnDefinition Width="100" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-        </StackPanel>
+                <!-- Rejestr AX -->
+                <Label Content="AX:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"/>
+                <TextBox x:Name="AXInput" Grid.Row="0" Grid.Column="1" Width="120" VerticalAlignment="Center" MaxLength="4"/>
+                <Button Content="Przypisz" Grid.Row="0" Grid.Column="2" Width="80" Click="SaveRegister_Click" Tag="AX"/>
 
-        <TextBlock
-            Height="40"
-            VerticalAlignment="Top"
-            Background="Gray"
-            TextAlignment="Center"
-            FontSize="20pt">
-            SSS
-        </TextBlock>
+                <!-- Rejestr BX -->
+                <Label Content="BX:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center"/>
+                <TextBox x:Name="BXInput" Grid.Row="1" Grid.Column="1" Width="120" VerticalAlignment="Center" MaxLength="4"/>
+                <Button Content="Przypisz" Grid.Row="1" Grid.Column="2" Width="80" Click="SaveRegister_Click" Tag="BX"/>
 
-        <TextBlock Width="100" Height="15" HorizontalAlignment="Right" Background="Gray" Padding="10,0,0,0" VerticalAlignment="Bottom" FontSize="10pt">Dawid Ogiela</TextBlock>
+                <!-- Rejestr CX -->
+                <Label Content="CX:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center"/>
+                <TextBox x:Name="CXInput" Grid.Row="2" Grid.Column="1" Width="120" VerticalAlignment="Center" MaxLength="4"/>
+                <Button Content="Przypisz" Grid.Row="2" Grid.Column="2" Width="80" Click="SaveRegister_Click" Tag="CX"/>
+
+                <!-- Rejestr DX -->
+                <Label Content="DX:" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center"/>
+                <TextBox x:Name="DXInput" Grid.Row="3" Grid.Column="1" Width="120" VerticalAlignment="Center" MaxLength="4"/>
+                <Button Content="Przypisz" Grid.Row="3" Grid.Column="2" Width="80" Click="SaveRegister_Click" Tag="DX"/>
+
+                <!-- Rejestr SI -->
+                <Label Content="SI:" Grid.Row="4" Grid.Column="0" VerticalAlignment="Center"/>
+                <TextBox x:Name="SIInput" Grid.Row="4" Grid.Column="1" Width="120" VerticalAlignment="Center" MaxLength="4"/>
+                <Button Content="Przypisz" Grid.Row="4" Grid.Column="2" Width="80" Click="SaveRegister_Click" Tag="SI"/>
+
+                <!-- Rejestr DI -->
+                <Label Content="DI:" Grid.Row="5" Grid.Column="0" VerticalAlignment="Center"/>
+                <TextBox x:Name="DIInput" Grid.Row="5" Grid.Column="1" Width="120" VerticalAlignment="Center" MaxLength="4"/>
+                <Button Content="Przypisz" Grid.Row="5" Grid.Column="2" Width="80" Click="SaveRegister_Click" Tag="DI"/>
+
+                <!-- Rejestr BP -->
+                <Label Content="BP:" Grid.Row="6" Grid.Column="0" VerticalAlignment="Center"/>
+                <TextBox x:Name="BPInput" Grid.Row="6" Grid.Column="1" Width="120" VerticalAlignment="Center" MaxLength="4"/>
+                <Button Content="Przypisz" Grid.Row="6" Grid.Column="2" Width="80" Click="SaveRegister_Click" Tag="BP"/>
+
+                <!-- Rejestr DISP -->
+                <Label Content="DISP:" Grid.Row="7" Grid.Column="0" VerticalAlignment="Center"/>
+                <TextBox x:Name="DISPInput" Grid.Row="7" Grid.Column="1" Width="120" VerticalAlignment="Center" MaxLength="4"/>
+                <Button Content="Przypisz" Grid.Row="7" Grid.Column="2" Width="80" Click="SaveRegister_Click" Tag="DISP"/>
+            </Grid>
+        </GroupBox>
+
+        <!-- Sekcja widoku rejestrów -->
+        <GroupBox FontSize="14" Header="Widok Wartości" Margin="568,0,368,0">
+            <Grid Margin="10" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50" />
+                    <ColumnDefinition Width="100" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="43*"/>
+                    <RowDefinition Height="146*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Rejestr AX -->
+                <Label Content="AX:" Grid.Column="0" VerticalAlignment="Center"/>
+                <TextBlock x:Name="AXView" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left" Text="0000"/>
+
+                <!-- Rejestr BX -->
+                <Label Content="BX:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center"/>
+                <TextBlock x:Name="BXView" Grid.Row="1" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left" Text="0000"/>
+
+                <!-- Rejestr CX -->
+                <Label Content="CX:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center"/>
+                <TextBlock x:Name="CXView" Grid.Row="2" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left" Text="0000"/>
+
+                <!-- Rejestr DX -->
+                <Label Content="DX:" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center"/>
+                <TextBlock x:Name="DXView" Grid.Row="3" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left" Text="0000"/>
+
+                <!-- Rejestr SI -->
+                <Label Content="SI:" Grid.Row="4" Grid.Column="0" VerticalAlignment="Center"/>
+                <TextBlock x:Name="SIView" Grid.Row="4" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left" Text="0000"/>
+
+                <!-- Rejestr DI -->
+                <Label Content="DI:" Grid.Row="5" Grid.Column="0" VerticalAlignment="Center"/>
+                <TextBlock x:Name="DIView" Grid.Row="5" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left" Text="0000"/>
+
+                <!-- Rejestr BP -->
+                <Label Content="BP:" Grid.Row="6" Grid.Column="0" VerticalAlignment="Center"/>
+                <TextBlock x:Name="BPView" Grid.Row="6" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left" Text="0000"/>
+
+                <!-- Rejestr DISP -->
+                <Label Content="DISP:" Grid.Row="7" Grid.Column="0" VerticalAlignment="Center"/>
+                <TextBlock x:Name="DISPView" Grid.Row="7" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left" Text="0000"/>
+
+            </Grid>
+        </GroupBox>
+
+        <!-- Sekcja logów operacji -->
+        <GroupBox Header="Rejestr Operacji" FontSize="14" Margin="905,0,0,0" HorizontalAlignment="Left" Width="175">
+            <Grid>
+                <ListBox x:Name="LogList" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10" MaxWidth="200"/>
+            </Grid>
+        </GroupBox>
+
+        <!-- Przycisk resetowania rejestrów -->
+        <Button Content="Reset" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="150" Margin="10" Click="ResetClick"/>
     </Grid>
 </Window>
+
