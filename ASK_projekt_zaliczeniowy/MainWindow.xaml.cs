@@ -20,6 +20,7 @@ namespace ASK_projekt_zaliczeniowy
         string bx = "0000";
         string cx = "0000";
         string dx = "0000";
+
         string si = "0000";
         string di = "0000";
         string bp = "0000";
@@ -346,6 +347,17 @@ namespace ASK_projekt_zaliczeniowy
         private void ClearClick(object sender, RoutedEventArgs e)
         {
             ClearInputs();
+        }
+
+        /// 7. Przycisk Wybrania kierunku wymiany danych w pamięci
+        private void ChangeDirectionOfMemo(object sender, RoutedEventArgs e)
+        {
+            
+        }
+
+        private void ChangeMemo(object sender, RoutedEventArgs e)
+        {
+
         }
 
         private string? StringHEX(string s)
