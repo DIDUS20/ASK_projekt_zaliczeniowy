@@ -171,13 +171,13 @@
             </Grid>
         </GroupBox>
 
-        <!-- Sekcja edycji adresowania -->
-        <GroupBox Header="Edycja Pamięci" FontSize="14" Margin="440,-10,0,282" HorizontalAlignment="Left" Width="460">
+        <!-- Sekcja edycji pamięci -->
+        <GroupBox Header="Edycja Pamięci" FontSize="14" Margin="440,-10,0,239" HorizontalAlignment="Left" Width="460">
             <Grid>
                 
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="150"/>
-                    <ColumnDefinition/>
+                    <ColumnDefinition Width="130"/>
+                    <ColumnDefinition Width="140"/>
                     <ColumnDefinition/>
 
                 </Grid.ColumnDefinitions>
@@ -185,22 +185,40 @@
                     <RowDefinition Height="80"/>
                     <RowDefinition/>
                     <RowDefinition/>
+                    <RowDefinition/>
                 </Grid.RowDefinitions>
 
                 <Label Content="Typ adresowania:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                <RadioButton Grid.Row="0" Grid.Column="1" GroupName="type_of_addres" Content="Bazowy" Margin="0,10,0,30" Checked="ChangeMemo"/>
-                <RadioButton Grid.Row="0" Grid.Column="1" GroupName="type_of_addres" Content="Indeksowy" Margin="0,30,0,30" Checked="ChangeMemo"/>
-                <RadioButton Grid.Row="0" Grid.Column="1" GroupName="type_of_addres" Content="Bazowo-Indeksowy" Margin="0,50,0,0" Checked="ChangeMemo"/>
-                <ComboBox x:Name="kierunek_memo" Margin="5,0,5,0" Grid.Column="2" Grid.Row="0" VerticalAlignment="Center">
-                    <ComboBoxItem Content="Z rejestru do pamięci" Selected="ChangeDirectionOfMemo" />
-                    <ComboBoxItem Content="Z pamięci do rejestru" Selected="ChangeDirectionOfMemo" />
+                <RadioButton Grid.Row="0" Grid.Column="1" GroupName="type_of_addres" Content="Bazowy" Margin="0,10,0,30" Checked="ChangeTypeMemo" Tag="bazowy"/>
+                <RadioButton Grid.Row="0" Grid.Column="1" GroupName="type_of_addres" Content="Indeksowy" Margin="0,30,0,30" Checked="ChangeTypeMemo" Tag="indeksowy"/>
+                <RadioButton Grid.Row="0" Grid.Column="1" GroupName="type_of_addres" Content="Bazowo-Indeksowy" Margin="0,50,0,0" Checked="ChangeTypeMemo" Tag="indeksowo-bazowy"/>
+
+                <Label Content="Kierunek" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="0" Grid.Column="2"/>
+                <ComboBox x:Name="DirMemo" Margin="5,0,5,0" Grid.Column="2" Grid.Row="0" SelectionChanged="ChangeDirectionOfMemo"  VerticalAlignment="Center" >
+                    <ComboBoxItem Content="Z rejestru do pamięci" />
+                    <ComboBoxItem Content="Z pamięci do rejestru" />
                 </ComboBox>
 
+                <!-- Sender & Reciver -->
+                <Label x:Name="MemoRejLabel" Grid.Row="1" Grid.ColumnSpan="2" Content="" Margin="10" FontSize="16" VerticalAlignment="Center"/>
+                <ComboBox x:Name="MemoRej" Grid.Row="1" Grid.Column="2" Margin="10">
+                    <ComboBoxItem Content="AX"/>
+                    <ComboBoxItem Content="BX"/>
+                    <ComboBoxItem Content="CX"/>
+                    <ComboBoxItem Content="DX"/>
+                </ComboBox>
+
+                <Label x:Name="MemoAdresLabel" Grid.Row="2" Grid.ColumnSpan="2" Content="" Margin="10" FontSize="16" VerticalAlignment="Center"/>
+                <ComboBox x:Name="MemoAdres" Grid.Row="2" Grid.Column="2" Margin="10" />
+
+                <!-- Operacje na pamięci -->
+                <Button x:Name="MemoMOV" Content="MOV" Grid.Row="3" Grid.ColumnSpan="3" Margin="100,20,250,20" Click="MOVMemory" />
+                <Button x:Name="MemoXCHG" Content="XCHG" Grid.Row="3" Grid.ColumnSpan="3" Margin="250,20,100,20" Click="XCHGMemory" />
             </Grid>
         </GroupBox>
 
         <!-- Sekcja podglądu pamięci -->
-        <GroupBox Header="Podgląd Pamięci" FontSize="14" Margin="440,282,0,0" HorizontalAlignment="Left" Width="460">
+        <GroupBox Header="Podgląd Pamięci" FontSize="14" Margin="440,330,0,0" HorizontalAlignment="Left" Width="460">
             <Grid>
                 <ListBox x:Name="MemoList" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10" MaxWidth="500"/>
             </Grid>

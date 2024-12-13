@@ -1,6 +1,9 @@
-﻿using System.IO.Packaging;
+﻿using System.Configuration;
+using System.Data;
+using System.IO.Packaging;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Transactions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -26,9 +29,9 @@ namespace ASK_projekt_zaliczeniowy
         string bp = "0000";
         string disp = "0000";
 
-        string[] TABLICA = new string[65536]; // pamięć
+        ushort[] memory = new ushort[65536]; // pamięć
 
-        string[] STOS = new string[65536];  // stos
+        ushort[] stos = new ushort[65536];  // stos
         int wskaznikStosu = 0;
 
         /// dla combo boxów w MOV | XCHG
@@ -350,22 +353,166 @@ namespace ASK_projekt_zaliczeniowy
         }
 
         /// 7. Przycisk Wybrania kierunku wymiany danych w pamięci
-        private void ChangeDirectionOfMemo(object sender, RoutedEventArgs e)
+        private void ChangeDirectionOfMemo(object sender, SelectionChangedEventArgs e)
         {
+            ComboBoxItem choice = (ComboBoxItem) DirMemo.SelectedItem;
+            string? value = choice.Content.ToString();
             
+            if (value == "Z rejestru do pamięci")
+            {
+                MemoRejLabel.Content = "Przenieś dane z rejestru ";
+                MemoAdresLabel.Content = "do pamięci bazując na rejestrze ";
+            }
+            else if (value == "Z pamięci do rejestru")
+            {
+                MemoRejLabel.Content = "Przenieś dane z pamięci do rejestru ";
+                MemoAdresLabel.Content = "bazując na rejestrze ";
+            }
         }
 
-        private void ChangeMemo(object sender, RoutedEventArgs e)
+        /// 8. Przycisk wybrania typu adresowania
+        string typeOfAddresation = "";
+        string[] BaseList = { "BX", "BP"};
+        string[] IndexList = { "SI", "DI"};
+        string[] IndexBaseList = { "SI+BX", "SI+BP", "DI+BX", "DI+BP" };
+        private void ChangeTypeMemo(object sender, RoutedEventArgs e)
+        {
+            var button = sender as FrameworkElement;
+            var tag = button?.Tag.ToString();
+            MemoAdres.Items.Clear();
+            switch (tag)
+            {
+                case "bazowy":
+                    // Bazowy typ adresacji
+                    foreach( var item in BaseList) MemoAdres.Items.Add(item);
+                    typeOfAddresation = tag;
+                    break;
+                case "indeksowy":
+                    // Indeksowy typ adresacji
+                    foreach (var item in IndexList) MemoAdres.Items.Add(item);
+                    typeOfAddresation = tag;
+                    break;
+                case "indeksowo-bazowy":
+                    // Indeksowo-bazowy typ adresacji
+                    foreach (var item in IndexBaseList) MemoAdres.Items.Add(item);
+                    typeOfAddresation = tag;
+                    break;
+                default:
+                    typeOfAddresation = "";
+                    break;
+            }
+        }
+
+        /// 9. Przycisk MOV dla pamięci
+        private void MOVMemory(object sender, RoutedEventArgs e)
+        {   
+            bool done = false;
+
+            ComboBoxItem firstBox = (ComboBoxItem)MemoRej.SelectedItem;
+            string? first = firstBox.Content.ToString();
+
+            ComboBoxItem secondBox = (ComboBoxItem)MemoRej.SelectedItem;
+            string? second = secondBox.Content.ToString();
+
+            switch (typeOfAddresation)
+            {
+                case "bazowy":
+                    switch (first) // Rejestr
+                    {
+                        case "AX":
+                            switch (second) // Adresacja Rejestr 
+                            {
+                                case "BX":
+                                    
+                                    break;
+                                case "BP":
+                                    break;
+                            }
+                            break;
+                        case "BX":
+                            break;
+                        case "CX":
+                            break;
+                        case "DX":
+                            break;
+                    }
+                    break;
+                case "indeksowy":
+                    switch (first)
+                    {
+                        case "AX":
+                            break;
+                        case "BX":
+                            break;
+                        case "CX":
+                            break;
+                        case "DX":
+                            break;
+                    }
+                    break;
+                case "indeksowo-bazowy":
+                    switch (first)
+                    {
+                        case "AX":
+                            break;
+                        case "BX":
+                            break;
+                        case "CX":
+                            break;
+                        case "DX":
+                            break;
+                    }
+                    break;
+            }
+        }
+
+        /// 10. Przycisk XCHG dla pamięci
+        private void XCHGMemory(object sender, RoutedEventArgs e)
         {
 
         }
 
         private string? StringHEX(string s)
         {
+            s = s.Trim();
             ushort rec;
-            if (ushort.TryParse(s, System.Globalization.NumberStyles.HexNumber, null,out rec)) return s;
+            if (ushort.TryParse(s, System.Globalization.NumberStyles.HexNumber, null, out rec))
+            {
+                if (s.Length == 1) return "000" + s;
+                else if (s.Length == 2) return "00" + s;
+                else if (s.Length == 3) return "0" + s;
+                else return s;
+            }
             else return null;
             
+        }
+
+        private bool MOVRegToMem(string baseReg, string indexReg, string value)
+        {
+            try
+            {
+                ushort address = (ushort)(ushort.Parse(baseReg) + ushort.Parse(indexReg) + ushort.Parse(disp));
+                memory[address] = ushort.Parse(value);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+    
+        private bool MOVMemToReg(string baseReg, string indexReg, string value)
+        {
+            try
+            {
+                ushort address = (ushort)(ushort.Parse(baseReg) + ushort.Parse(indexReg) + ushort.Parse(disp));
+                memory[address] = ushort.Parse(value);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
     }
 }
