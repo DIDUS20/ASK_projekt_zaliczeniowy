@@ -41,9 +41,9 @@ namespace ASK_projekt_zaliczeniowy
         string[] regs = {"AX", "BX", "CX", "DX"};
 
         public MainWindow()
-        {
+        { 
             InitializeComponent();
-
+              
             // Init & Clear
             InitializeRegsInCombos();
             ClearInputs();
@@ -172,7 +172,9 @@ namespace ASK_projekt_zaliczeniowy
             // Czyszczenie wartości
             ax = bx = cx = dx = si = di = bp = disp = "0000";
             AXView.Text = BXView.Text = CXView.Text = DXView.Text = SIView.Text = DIView.Text = BPView.Text = DISPView.Text = "0000";
+            memory = new ushort[65536];
             LogList.Items.Clear();
+            MemoList.Items.Clear();
             // Dodaj wpis do logu
             LogList.Items.Insert(0,"---Reset---");
         }
@@ -617,10 +619,10 @@ namespace ASK_projekt_zaliczeniowy
                                     switch (second) // Adresacja Rejestr 
                                     {
                                         case "BX":
-                                            if (MOVMemo(bx, "0", ax, 1)) done = true;
+                                            if (MOVMemo(bx, "0", "AX", 1)) done = true;
                                             break;
                                         case "BP":
-                                            if (MOVMemo(bp, "0", ax, 1)) done = true;
+                                            if (MOVMemo(bp, "0", "AX", 1)) done = true;
                                             break;
                                     }
                                     break;
@@ -628,10 +630,10 @@ namespace ASK_projekt_zaliczeniowy
                                     switch (second) // Adresacja Rejestr 
                                     {
                                         case "BX":
-                                            if (MOVMemo(bx, "0", bx, 1)) done = true;
+                                            if (MOVMemo(bx, "0", "BX", 1)) done = true;
                                             break;
                                         case "BP":
-                                            if (MOVMemo(bp, "0", bx, 1)) done = true;
+                                            if (MOVMemo(bp, "0", "BX", 1)) done = true;
                                             break;
                                     }
                                     break;
@@ -639,10 +641,10 @@ namespace ASK_projekt_zaliczeniowy
                                     switch (second) // Adresacja Rejestr 
                                     {
                                         case "BX":
-                                            if (MOVMemo(bx, "0", cx, 1)) done = true;
+                                            if (MOVMemo(bx, "0", "CX", 1)) done = true;
                                             break;
                                         case "BP":
-                                            if (MOVMemo(bp, "0", cx, 1)) done = true;
+                                            if (MOVMemo(bp, "0", "CX", 1)) done = true;
                                             break;
                                     }
                                     break;
@@ -650,10 +652,10 @@ namespace ASK_projekt_zaliczeniowy
                                     switch (second) // Adresacja Rejestr 
                                     {
                                         case "BX":
-                                            if (MOVMemo(bx, "0", dx, 1)) done = true;
+                                            if (MOVMemo(bx, "0", "DX", 1)) done = true;
                                             break;
                                         case "BP":
-                                            if (MOVMemo(bp, "0", dx, 1)) done = true;
+                                            if (MOVMemo(bp, "0", "DX", 1)) done = true;
                                             break;
                                     }
                                     break;
@@ -666,10 +668,10 @@ namespace ASK_projekt_zaliczeniowy
                                     switch (second) // Adresacja Rejestr 
                                     {
                                         case "SI":
-                                            if (MOVMemo("0", si, ax, 1)) done = true;
+                                            if (MOVMemo("0", si, "AX", 1)) done = true;
                                             break;
                                         case "DI":
-                                            if (MOVMemo("0", di, ax, 1)) done = true;
+                                            if (MOVMemo("0", di, "AX", 1)) done = true;
                                             break;
                                     }
                                     break;
@@ -677,10 +679,10 @@ namespace ASK_projekt_zaliczeniowy
                                     switch (second) // Adresacja Rejestr 
                                     {
                                         case "SI":
-                                            if (MOVMemo("0", si, bx, 1)) done = true;
+                                            if (MOVMemo("0", si, "BX", 1)) done = true;
                                             break;
                                         case "DI":
-                                            if (MOVMemo("0", di, bx, 1)) done = true;
+                                            if (MOVMemo("0", di, "BX", 1)) done = true;
                                             break;
                                     }
                                     break;
@@ -688,10 +690,10 @@ namespace ASK_projekt_zaliczeniowy
                                     switch (second) // Adresacja Rejestr 
                                     {
                                         case "SI":
-                                            if (MOVMemo("0", si, cx, 1)) done = true;
+                                            if (MOVMemo("0", si, "CX", 1)) done = true;
                                             break;
                                         case "DI":
-                                            if (MOVMemo("0", di, cx, 1)) done = true;
+                                            if (MOVMemo("0", di, "CX", 1)) done = true;
                                             break;
                                     }
                                     break;
@@ -699,10 +701,10 @@ namespace ASK_projekt_zaliczeniowy
                                     switch (second) // Adresacja Rejestr 
                                     {
                                         case "SI":
-                                            if (MOVMemo("0", si, dx, 1)) done = true;
+                                            if (MOVMemo("0", si, "DX", 1)) done = true;
                                             break;
                                         case "DI":
-                                            if (MOVMemo("0", di, dx, 1)) done = true;
+                                            if (MOVMemo("0", di, "DX", 1)) done = true;
                                             break;
                                     }
                                     break;
@@ -715,16 +717,16 @@ namespace ASK_projekt_zaliczeniowy
                                     switch (second) // Adresacja Rejestr 
                                     {
                                         case "SI+BX":
-                                            if (MOVMemo(bx, si, ax, 1)) done = true;
+                                            if (MOVMemo(bx, si, "AX", 1)) done = true;
                                             break;
                                         case "SI+BP":
-                                            if (MOVMemo(bp, si, ax, 1)) done = true;
+                                            if (MOVMemo(bp, si, "AX", 1)) done = true;
                                             break;
                                         case "DI+BX":
-                                            if (MOVMemo(bx, di, ax, 1)) done = true;
+                                            if (MOVMemo(bx, di, "AX", 1)) done = true;
                                             break;
                                         case "DI+BP":
-                                            if (MOVMemo(bp, di, ax, 1)) done = true;
+                                            if (MOVMemo(bp, di, "AX", 1)) done = true;
                                             break;
                                     }
                                     break;
@@ -732,16 +734,16 @@ namespace ASK_projekt_zaliczeniowy
                                     switch (second) // Adresacja Rejestr 
                                     {
                                         case "SI+BX":
-                                            if (MOVMemo(bx, si, bx, 1)) done = true;
+                                            if (MOVMemo(bx, si, "BX", 1)) done = true;
                                             break;
                                         case "SI+BP":
-                                            if (MOVMemo(bp, si, bx, 1)) done = true;
+                                            if (MOVMemo(bp, si, "BX", 1)) done = true;
                                             break;
                                         case "DI+BX":
-                                            if (MOVMemo(bx, di, bx, 1)) done = true;
+                                            if (MOVMemo(bx, di, "BX", 1)) done = true;
                                             break;
                                         case "DI+BP":
-                                            if (MOVMemo(bp, di, bx, 1)) done = true;
+                                            if (MOVMemo(bp, di, "BX", 1)) done = true;
                                             break;
                                     }
                                     break;
@@ -749,16 +751,16 @@ namespace ASK_projekt_zaliczeniowy
                                     switch (second) // Adresacja Rejestr 
                                     {
                                         case "SI+BX":
-                                            if (MOVMemo(bx, si, cx, 1)) done = true;
+                                            if (MOVMemo(bx, si, "CX", 1)) done = true;
                                             break;
                                         case "SI+BP":
-                                            if (MOVMemo(bp, si, cx, 1)) done = true;
+                                            if (MOVMemo(bp, si, "CX", 1)) done = true;
                                             break;
                                         case "DI+BX":
-                                            if (MOVMemo(bx, di, cx, 1)) done = true;
+                                            if (MOVMemo(bx, di, "CX", 1)) done = true;
                                             break;
                                         case "DI+BP":
-                                            if (MOVMemo(bp, di, cx, 1)) done = true;
+                                            if (MOVMemo(bp, di, "CX", 1)) done = true;
                                             break;
                                     }
                                     break;
@@ -766,16 +768,16 @@ namespace ASK_projekt_zaliczeniowy
                                     switch (second) // Adresacja Rejestr 
                                     {
                                         case "SI+BX":
-                                            if (MOVMemo(bx, si, dx, 1)) done = true;
+                                            if (MOVMemo(bx, si, "DX", 1)) done = true;
                                             break;
                                         case "SI+BP":
-                                            if (MOVMemo(bp, si, dx, 1)) done = true;
+                                            if (MOVMemo(bp, si, "DX", 1)) done = true;
                                             break;
                                         case "DI+BX":
-                                            if (MOVMemo(bx, di, dx, 1)) done = true;
+                                            if (MOVMemo(bx, di, "DX", 1)) done = true;
                                             break;
                                         case "DI+BP":
-                                            if (MOVMemo(bp, di, dx, 1)) done = true;
+                                            if (MOVMemo(bp, di, "DX", 1)) done = true;
                                             break;
                                     }
                                     break;
@@ -795,8 +797,10 @@ namespace ASK_projekt_zaliczeniowy
         }
 
         // Aktualizacja Rejestru operacj i pamięci
-        void UpdateMemoView(string reg, string based)
+        private void UpdateMemoView(string reg, string based)
         {
+            MemoList.Items.Clear();
+
             if (direction == "Z rejestru do pamięci") LogList.Items.Insert(0,$"MOV [{based+ "+" +disp.ToString()}] {reg}");
             else if (direction == "Z pamięci do rejestru") LogList.Items.Insert(0,$"MOV {reg} [{based + "+" + disp.ToString()}]");
 
@@ -804,7 +808,7 @@ namespace ASK_projekt_zaliczeniowy
             {
                 if (memory[i] != 0)
                 {
-                    MemoList.Items.Insert(0,$"{i}: {memory[i]}");
+                    MemoList.Items.Add($"{i}: {memory[i]}");
                 }
             }
         }
@@ -812,9 +816,199 @@ namespace ASK_projekt_zaliczeniowy
         /// 10. Przycisk XCHG dla pamięci
         private void XCHGMemory(object sender, RoutedEventArgs e)
         {
+            bool done = false;
 
+            ComboBoxItem firstBox = (ComboBoxItem)MemoRej.SelectedItem;
+
+            if (firstBox != null && MemoAdres.SelectedItem != null)
+            {
+                string? first = firstBox.Content.ToString();
+                string? second = MemoAdres.SelectedItem.ToString();
+
+                    switch (typeOfAddresation)
+                    {
+                        case "bazowy":
+                            switch (first) // Rejestr na którym jest operacja
+                            {
+                                case "AX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "BX":
+                                            if (XCHGMemo(bx, "0", "AX")) done = true;
+                                            break;
+                                        case "BP":
+                                            if (XCHGMemo(bp, "0", "AX")) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "BX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "BX":
+                                            if (XCHGMemo(bx, "0", "BX")) done = true;
+                                            break;
+                                        case "BP":
+                                            if (XCHGMemo(bp, "0", "BX")) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "CX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "BX":
+                                            if (XCHGMemo(bx, "0", "CX")) done = true;
+                                            break;
+                                        case "BP":
+                                            if (XCHGMemo(bp, "0", "CX")) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "DX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "BX":
+                                            if (XCHGMemo(bx, "0", "DX")) done = true;
+                                            break;
+                                        case "BP":
+                                            if (XCHGMemo(bp, "0", "DX")) done = true;
+                                            break;
+                                    }
+                                    break;
+                            }
+                            break;
+                        case "indeksowy":
+                            switch (first) // Rejestr na którym jest operacja
+                            {
+                                case "AX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "SI":
+                                            if (XCHGMemo("0", si, "AX")) done = true;
+                                            break;
+                                        case "DI":
+                                            if (XCHGMemo("0", di, "AX")) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "BX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "SI":
+                                            if (XCHGMemo("0", si, "BX")) done = true;
+                                            break;
+                                        case "DI":
+                                            if (XCHGMemo("0", di, "BX")) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "CX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "SI":
+                                            if (XCHGMemo("0", si, "CX")) done = true;
+                                            break;
+                                        case "DI":
+                                            if (XCHGMemo("0", di, "CX")) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "DX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "SI":
+                                            if (XCHGMemo("0", si, "DX")) done = true;
+                                            break;
+                                        case "DI":
+                                            if (XCHGMemo("0", di, "DX")) done = true;
+                                            break;
+                                    }
+                                    break;
+                            }
+                            break;
+                        case "indeksowo-bazowy":
+                            switch (first) // Rejestr na którym jest operacja
+                            {
+                                case "AX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "SI+BX":
+                                            if (XCHGMemo(bx, si, "AX")) done = true;
+                                            break;
+                                        case "SI+BP":
+                                            if (XCHGMemo(bp, si, "AX")) done = true;
+                                            break;
+                                        case "DI+BX":
+                                            if (XCHGMemo(bx, di, "AX")) done = true;
+                                            break;
+                                        case "DI+BP":
+                                            if (XCHGMemo(bp, di, "AX")) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "BX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "SI+BX":
+                                            if (XCHGMemo(bx, si, "BX")) done = true;
+                                            break;
+                                        case "SI+BP":
+                                            if (XCHGMemo(bp, si, "BX")) done = true;
+                                            break;
+                                        case "DI+BX":
+                                            if (XCHGMemo(bx, di, "BX")) done = true;
+                                            break;
+                                        case "DI+BP":
+                                            if (XCHGMemo(bp, di, "BX")) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "CX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "SI+BX":
+                                            if (XCHGMemo(bx, si, "CX")) done = true;
+                                            break;
+                                        case "SI+BP":
+                                            if (XCHGMemo(bp, si, "CX")) done = true;
+                                            break;
+                                        case "DI+BX":
+                                            if (XCHGMemo(bx, di, "CX")) done = true;
+                                            break;
+                                        case "DI+BP":
+                                            if (XCHGMemo(bp, di, "CX")) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "DX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "SI+BX":
+                                            if (XCHGMemo(bx, si, "DX")) done = true;
+                                            break;
+                                        case "SI+BP":
+                                            if (XCHGMemo(bp, si, "DX")) done = true;
+                                            break;
+                                        case "DI+BX":
+                                            if (XCHGMemo(bx, di, "DX")) done = true;
+                                            break;
+                                        case "DI+BP":
+                                            if (XCHGMemo(bp, di, "DX")) done = true;
+                                            break;
+                                    }
+                                    break;
+                            }
+                            break;
+                    }
+                
+                if (done && first != null && second != null)
+                {
+                    UpdateRegsView();
+                    UpdateMemoView(first, second);
+                }
+            }
         }
 
+        // Change ushort to string 
         private string? StringHEX(string s)
         {
             s = s.Trim();
@@ -838,8 +1032,8 @@ namespace ASK_projekt_zaliczeniowy
                 try
                 {
                     address = (ushort)(ushort.Parse(baseReg) + ushort.Parse(indexReg) + ushort.Parse(disp));
-                    memory[address] = ushort.Parse(reg.Substring(0,2));
-                    memory[address+1] = ushort.Parse(reg.Substring(2, 2));
+                    memory[address] = ushort.Parse(reg.Substring(2,2));
+                    memory[address+1] = ushort.Parse(reg.Substring(0, 2));
                     return true;
                 }
                 catch 
@@ -847,26 +1041,30 @@ namespace ASK_projekt_zaliczeniowy
                     return false;
                 }
             }
-            else  // Z pamięci do rejestru
+            else if(kierunek == 1) // Z pamięci do rejestru
             {
                 try
                 {
                     address = (ushort)(ushort.Parse(baseReg) + ushort.Parse(indexReg) + ushort.Parse(disp));
+                    string temp = memory[address + 1].ToString() + memory[address].ToString();
                     switch (reg)
                     {
                         case "AX":
-                            ax = memory[address].ToString();
+                            ax = StringHEX(temp);
                             break;
                         case "BX":
-                            bx = memory[address].ToString();
+                            bx = StringHEX(temp);
                             break;
                         case "CX":
-                            cx = memory[address].ToString();
+                            cx = StringHEX(temp);
                             break;
                         case "DX":
-                            dx = memory[address].ToString();
+                            dx = StringHEX(temp);
                             break;
                     }
+
+                    memory[address] = 0;
+                    memory[address+1] = 0;
                     return true;
                 }
                 catch
@@ -874,12 +1072,49 @@ namespace ASK_projekt_zaliczeniowy
                     return false;
                 }
             }
+            return false;
             
         }
 
-        private void MemoAdres_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        // Polecenie XCHG Pamięć
+        private bool XCHGMemo(string baseReg, string indexReg, string reg, int kierunek = 0)
         {
+            try
+            {
+                address = (ushort)(ushort.Parse(baseReg) + ushort.Parse(indexReg) + ushort.Parse(disp));
+                string temp = memory[address + 1].ToString() + memory[address].ToString();
 
+                switch (reg)
+                {
+                    case "AX":
+                        memory[address] = ushort.Parse(ax.Substring(2, 2));
+                        memory[address + 1] = ushort.Parse(ax.Substring(0, 2));
+                        ax = StringHEX(temp);
+                        break;
+                    case "BX":
+                        memory[address] = ushort.Parse(bx.Substring(2, 2));
+                        memory[address + 1] = ushort.Parse(bx.Substring(0, 2));
+                        bx = StringHEX(temp);
+                        break;
+                    case "CX":
+                        memory[address] = ushort.Parse(cx.Substring(2, 2));
+                        memory[address + 1] = ushort.Parse(cx.Substring(0, 2));
+                        cx = StringHEX(temp);
+                        break;
+                    case "DX":
+                        memory[address] = ushort.Parse(dx.Substring(2, 2));
+                        memory[address + 1] = ushort.Parse(dx.Substring(0, 2));
+                        dx = StringHEX(temp);
+                        break;
+
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
+
     }
 }
