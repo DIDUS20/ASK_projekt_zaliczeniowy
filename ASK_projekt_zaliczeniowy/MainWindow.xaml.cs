@@ -3,6 +3,7 @@ using System.Data;
 using System.IO.Packaging;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Transactions;
 using System.Windows;
 using System.Windows.Controls;
@@ -29,6 +30,8 @@ namespace ASK_projekt_zaliczeniowy
         string bp = "0000";
         string disp = "0000";
 
+        ushort address = 0;
+
         ushort[] memory = new ushort[65536]; // pamięć
 
         ushort[] stos = new ushort[65536];  // stos
@@ -49,6 +52,12 @@ namespace ASK_projekt_zaliczeniowy
         private void ClearInputs()
         {
             AXInput.Text = BXInput.Text = CXInput.Text = DXInput.Text = SIInput.Text = DIInput.Text = BPInput.Text = DISPInput.Text = "";
+            MemoAdres.Text = null;
+            MemoRej.Text = null;
+            DirMemo.SelectedItem = null;
+            group0.IsChecked = false;
+            group1.IsChecked = false;
+            group2.IsChecked = false;
         }
         
         private void InitializeRegsInCombos()
@@ -153,7 +162,7 @@ namespace ASK_projekt_zaliczeniowy
             }
 
             // Dodaj wpis do logu
-            if (done) LogList.Items.Add($"MOV {tag} {value}");
+            if (done) LogList.Items.Insert(0,$"MOV {tag} {value}");
             UpdateRegsView(); // Aktualizuj Widok
         }
 
@@ -165,7 +174,7 @@ namespace ASK_projekt_zaliczeniowy
             AXView.Text = BXView.Text = CXView.Text = DXView.Text = SIView.Text = DIView.Text = BPView.Text = DISPView.Text = "0000";
             LogList.Items.Clear();
             // Dodaj wpis do logu
-            LogList.Items.Add("---Reset---");
+            LogList.Items.Insert(0,"---Reset---");
         }
 
         /// 3. Przycisk MOV
@@ -236,7 +245,7 @@ namespace ASK_projekt_zaliczeniowy
                         break;
                 }
 
-                LogList.Items.Add($"MOV {des} {src}");
+                LogList.Items.Insert(0,$"MOV {des} {src}");
                 UpdateRegsView();
             }
             
@@ -327,7 +336,7 @@ namespace ASK_projekt_zaliczeniowy
                         break;
                 }
 
-                LogList.Items.Add($"XCHG {des} {src}");
+                LogList.Items.Insert(0,$"XCHG {des} {src}");
                 UpdateRegsView();
             }
 
@@ -357,19 +366,21 @@ namespace ASK_projekt_zaliczeniowy
         private void ChangeDirectionOfMemo(object sender, SelectionChangedEventArgs e)
         {
             ComboBoxItem choice = (ComboBoxItem) DirMemo.SelectedItem;
-            string? value = choice.Content.ToString();
-            
-            if (value == "Z rejestru do pamięci")
+            if (choice != null)
             {
-                MemoRejLabel.Content = "Przenieś dane z rejestru ";
-                MemoAdresLabel.Content = "do pamięci bazując na rejestrze ";
-                direction = value.ToString();
-            }
-            else if (value == "Z pamięci do rejestru")
-            {
-                MemoRejLabel.Content = "Przenieś dane z pamięci do rejestru ";
-                MemoAdresLabel.Content = "bazując na rejestrze ";
-                direction = value.ToString();
+                string? value = choice.Content.ToString();
+                if (value == "Z rejestru do pamięci")
+                {
+                    MemoRejLabel.Content = "Przenieś dane z rejestru ";
+                    MemoAdresLabel.Content = "do pamięci bazując na rejestrze ";
+                    direction = value.ToString();
+                }
+                else if (value == "Z pamięci do rejestru")
+                {
+                    MemoRejLabel.Content = "Przenieś dane z pamięci do rejestru ";
+                    MemoAdresLabel.Content = "bazując na rejestrze ";
+                    direction = value.ToString();
+                }
             }
         }
 
@@ -412,380 +423,391 @@ namespace ASK_projekt_zaliczeniowy
             bool done = false;
 
             ComboBoxItem firstBox = (ComboBoxItem)MemoRej.SelectedItem;
-            string? first = firstBox.Content.ToString();
 
-            string? second = MemoAdres.SelectedItem.ToString();
-
-            if (direction == "Z rejestru do pamięci") // Z REJESTRU DO PAMIĘCI
+            if (firstBox != null && MemoAdres.SelectedItem != null)
             {
-                switch (typeOfAddresation)
+                string? first = firstBox.Content.ToString();
+                string? second = MemoAdres.SelectedItem.ToString();
+
+                if (direction == "Z rejestru do pamięci") // Z REJESTRU DO PAMIĘCI
                 {
-                    case "bazowy":
-                        switch (first) // Rejestr na którym jest operacja
-                        {
-                            case "AX":
-                                switch (second) // Adresacja Rejestr 
-                                {
-                                    case "BX":
-                                        if (MOVMemo(bx,"0",ax)) done = true;
-                                        break;
-                                    case "BP":
-                                        if (MOVMemo(bp, "0", ax)) done = true;
-                                        break;
-                                }
-                                break;
-                            case "BX":
-                                switch (second) // Adresacja Rejestr 
-                                {
-                                    case "BX":
-                                        if (MOVMemo(bx, "0", bx)) done = true;
-                                        break;
-                                    case "BP":
-                                        if (MOVMemo(bp, "0", bx)) done = true;
-                                        break;
-                                }
-                                break;
-                            case "CX":
-                                switch (second) // Adresacja Rejestr 
-                                {
-                                    case "BX":
-                                        if (MOVMemo(bx, "0", cx)) done = true;
-                                        break;
-                                    case "BP":
-                                        if (MOVMemo(bp, "0", cx)) done = true;
-                                        break;
-                                }
-                                break;
-                            case "DX":
-                                switch (second) // Adresacja Rejestr 
-                                {
-                                    case "BX":
-                                        if (MOVMemo(bx, "0", dx)) done = true;
-                                        break;
-                                    case "BP":
-                                        if (MOVMemo(bp, "0", dx)) done = true;
-                                        break;
-                                }
-                                break;
-                        }
-                        break;
-                    case "indeksowy":
-                        switch (first) // Rejestr na którym jest operacja
-                        {
-                            case "AX":
-                                switch (second) // Adresacja Rejestr 
-                                {
-                                    case "SI":
-                                        if (MOVMemo("0", si, ax)) done = true;
-                                        break;
-                                    case "DI":
-                                        if (MOVMemo("0", di, ax)) done = true;
-                                        break;
-                                }
-                                break;
-                            case "BX":
-                                switch (second) // Adresacja Rejestr 
-                                {
-                                    case "SI":
-                                        if (MOVMemo("0", si, bx)) done = true;
-                                        break;
-                                    case "DI":
-                                        if (MOVMemo("0", di, bx)) done = true;
-                                        break;
-                                }
-                                break;
-                            case "CX":
-                                switch (second) // Adresacja Rejestr 
-                                {
-                                    case "SI":
-                                        if (MOVMemo("0", si, cx)) done = true;
-                                        break;
-                                    case "DI":
-                                        if (MOVMemo("0", di, cx)) done = true;
-                                        break;
-                                }
-                                break;
-                            case "DX":
-                                switch (second) // Adresacja Rejestr 
-                                {
-                                    case "SI":
-                                        if (MOVMemo("0", si, dx)) done = true;
-                                        break;
-                                    case "DI":
-                                        if (MOVMemo("0", di, dx)) done = true;
-                                        break;
-                                }
-                                break;
-                        }
-                        break;
-                    case "indeksowo-bazowy":
-                        switch (first) // Rejestr na którym jest operacja
-                        {
-                            case "AX":
-                                switch (second) // Adresacja Rejestr 
-                                {
-                                    case "SI+BX":
-                                        if (MOVMemo(bx, si, ax)) done = true;
-                                        break;
-                                    case "SI+BP":
-                                        if (MOVMemo(bp, si, ax)) done = true;
-                                        break;
-                                    case "DI+BX":
-                                        if (MOVMemo(bx, di, ax)) done = true;
-                                        break;
-                                    case "DI+BP":
-                                        if (MOVMemo(bp, di, ax)) done = true;
-                                        break;
-                                }
-                                break;
-                            case "BX":
-                                switch (second) // Adresacja Rejestr 
-                                {
-                                    case "SI+BX":
-                                        if (MOVMemo(bx, si, bx)) done = true;
-                                        break;
-                                    case "SI+BP":
-                                        if (MOVMemo(bp, si, bx)) done = true;
-                                        break;
-                                    case "DI+BX":
-                                        if (MOVMemo(bx, di, bx)) done = true;
-                                        break;
-                                    case "DI+BP":
-                                        if (MOVMemo(bp, di, bx)) done = true;
-                                        break;
-                                }
-                                break;
-                            case "CX":
-                                switch (second) // Adresacja Rejestr 
-                                {
-                                    case "SI+BX":
-                                        if (MOVMemo(bx, si, cx)) done = true;
-                                        break;
-                                    case "SI+BP":
-                                        if (MOVMemo(bp, si, cx)) done = true;
-                                        break;
-                                    case "DI+BX":
-                                        if (MOVMemo(bx, di, cx)) done = true;
-                                        break;
-                                    case "DI+BP":
-                                        if (MOVMemo(bp, di, cx)) done = true;
-                                        break;
-                                }
-                                break;
-                            case "DX":
-                                switch (second) // Adresacja Rejestr 
-                                {
-                                    case "SI+BX":
-                                        if (MOVMemo(bx, si, dx)) done = true;
-                                        break;
-                                    case "SI+BP":
-                                        if (MOVMemo(bp, si, dx)) done = true;
-                                        break;
-                                    case "DI+BX":
-                                        if (MOVMemo(bx, di, dx)) done = true;
-                                        break;
-                                    case "DI+BP":
-                                        if (MOVMemo(bp, di, dx)) done = true;
-                                        break;
-                                }
-                                break;
-                        }
-                        break;
+                    switch (typeOfAddresation)
+                    {
+                        case "bazowy":
+                            switch (first) // Rejestr na którym jest operacja
+                            {
+                                case "AX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "BX":
+                                            if (MOVMemo(bx, "0", ax)) done = true;
+                                            break;
+                                        case "BP":
+                                            if (MOVMemo(bp, "0", ax)) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "BX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "BX":
+                                            if (MOVMemo(bx, "0", bx)) done = true;
+                                            break;
+                                        case "BP":
+                                            if (MOVMemo(bp, "0", bx)) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "CX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "BX":
+                                            if (MOVMemo(bx, "0", cx)) done = true;
+                                            break;
+                                        case "BP":
+                                            if (MOVMemo(bp, "0", cx)) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "DX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "BX":
+                                            if (MOVMemo(bx, "0", dx)) done = true;
+                                            break;
+                                        case "BP":
+                                            if (MOVMemo(bp, "0", dx)) done = true;
+                                            break;
+                                    }
+                                    break;
+                            }
+                            break;
+                        case "indeksowy":
+                            switch (first) // Rejestr na którym jest operacja
+                            {
+                                case "AX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "SI":
+                                            if (MOVMemo("0", si, ax)) done = true;
+                                            break;
+                                        case "DI":
+                                            if (MOVMemo("0", di, ax)) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "BX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "SI":
+                                            if (MOVMemo("0", si, bx)) done = true;
+                                            break;
+                                        case "DI":
+                                            if (MOVMemo("0", di, bx)) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "CX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "SI":
+                                            if (MOVMemo("0", si, cx)) done = true;
+                                            break;
+                                        case "DI":
+                                            if (MOVMemo("0", di, cx)) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "DX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "SI":
+                                            if (MOVMemo("0", si, dx)) done = true;
+                                            break;
+                                        case "DI":
+                                            if (MOVMemo("0", di, dx)) done = true;
+                                            break;
+                                    }
+                                    break;
+                            }
+                            break;
+                        case "indeksowo-bazowy":
+                            switch (first) // Rejestr na którym jest operacja
+                            {
+                                case "AX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "SI+BX":
+                                            if (MOVMemo(bx, si, ax)) done = true;
+                                            break;
+                                        case "SI+BP":
+                                            if (MOVMemo(bp, si, ax)) done = true;
+                                            break;
+                                        case "DI+BX":
+                                            if (MOVMemo(bx, di, ax)) done = true;
+                                            break;
+                                        case "DI+BP":
+                                            if (MOVMemo(bp, di, ax)) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "BX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "SI+BX":
+                                            if (MOVMemo(bx, si, bx)) done = true;
+                                            break;
+                                        case "SI+BP":
+                                            if (MOVMemo(bp, si, bx)) done = true;
+                                            break;
+                                        case "DI+BX":
+                                            if (MOVMemo(bx, di, bx)) done = true;
+                                            break;
+                                        case "DI+BP":
+                                            if (MOVMemo(bp, di, bx)) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "CX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "SI+BX":
+                                            if (MOVMemo(bx, si, cx)) done = true;
+                                            break;
+                                        case "SI+BP":
+                                            if (MOVMemo(bp, si, cx)) done = true;
+                                            break;
+                                        case "DI+BX":
+                                            if (MOVMemo(bx, di, cx)) done = true;
+                                            break;
+                                        case "DI+BP":
+                                            if (MOVMemo(bp, di, cx)) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "DX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "SI+BX":
+                                            if (MOVMemo(bx, si, dx)) done = true;
+                                            break;
+                                        case "SI+BP":
+                                            if (MOVMemo(bp, si, dx)) done = true;
+                                            break;
+                                        case "DI+BX":
+                                            if (MOVMemo(bx, di, dx)) done = true;
+                                            break;
+                                        case "DI+BP":
+                                            if (MOVMemo(bp, di, dx)) done = true;
+                                            break;
+                                    }
+                                    break;
+                            }
+                            break;
+                    }
                 }
-            }
-            else if (direction == "Z pamięci do rejestru") // Z PAMIĘCI DO REJESTRU
-            {
-                switch (typeOfAddresation)
+                else if (direction == "Z pamięci do rejestru") // Z PAMIĘCI DO REJESTRU
                 {
-                    case "bazowy":
-                        switch (first) // Rejestr na którym jest operacja
-                        {
-                            case "AX":
-                                switch (second) // Adresacja Rejestr 
-                                {
-                                    case "BX":
-                                        if (MOVMemo(bx, "0", ax,1)) done = true;
-                                        break;
-                                    case "BP":
-                                        if (MOVMemo(bp, "0", ax,1)) done = true;
-                                        break;
-                                }
-                                break;
-                            case "BX":
-                                switch (second) // Adresacja Rejestr 
-                                {
-                                    case "BX":
-                                        if (MOVMemo(bx, "0", bx,1)) done = true;
-                                        break;
-                                    case "BP":
-                                        if (MOVMemo(bp, "0", bx,1)) done = true;
-                                        break;
-                                }
-                                break;
-                            case "CX":
-                                switch (second) // Adresacja Rejestr 
-                                {
-                                    case "BX":
-                                        if (MOVMemo(bx, "0", cx,1)) done = true;
-                                        break;
-                                    case "BP":
-                                        if (MOVMemo(bp, "0", cx,1)) done = true;
-                                        break;
-                                }
-                                break;
-                            case "DX":
-                                switch (second) // Adresacja Rejestr 
-                                {
-                                    case "BX":
-                                        if (MOVMemo(bx, "0", dx,1)) done = true;
-                                        break;
-                                    case "BP":
-                                        if (MOVMemo(bp, "0", dx,1)) done = true;
-                                        break;
-                                }
-                                break;
-                        }
-                        break;
-                    case "indeksowy":
-                        switch (first) // Rejestr na którym jest operacja
-                        {
-                            case "AX":
-                                switch (second) // Adresacja Rejestr 
-                                {
-                                    case "SI":
-                                        if (MOVMemo("0", si, ax,1)) done = true;
-                                        break;
-                                    case "DI":
-                                        if (MOVMemo("0", di, ax,1)) done = true;
-                                        break;
-                                }
-                                break;
-                            case "BX":
-                                switch (second) // Adresacja Rejestr 
-                                {
-                                    case "SI":
-                                        if (MOVMemo("0", si, bx,1)) done = true;
-                                        break;
-                                    case "DI":
-                                        if (MOVMemo("0", di, bx,1)) done = true;
-                                        break;
-                                }
-                                break;
-                            case "CX":
-                                switch (second) // Adresacja Rejestr 
-                                {
-                                    case "SI":
-                                        if (MOVMemo("0", si, cx,1)) done = true;
-                                        break;
-                                    case "DI":
-                                        if (MOVMemo("0", di, cx,1)) done = true;
-                                        break;
-                                }
-                                break;
-                            case "DX":
-                                switch (second) // Adresacja Rejestr 
-                                {
-                                    case "SI":
-                                        if (MOVMemo("0", si, dx,1)) done = true;
-                                        break;
-                                    case "DI":
-                                        if (MOVMemo("0", di, dx,1)) done = true;
-                                        break;
-                                }
-                                break;
-                        }
-                        break;
-                    case "indeksowo-bazowy":
-                        switch (first) // Rejestr na którym jest operacja
-                        {
-                            case "AX":
-                                switch (second) // Adresacja Rejestr 
-                                {
-                                    case "SI+BX":
-                                        if (MOVMemo(bx, si, ax,1)) done = true;
-                                        break;
-                                    case "SI+BP":
-                                        if (MOVMemo(bp, si, ax,1)) done = true;
-                                        break;
-                                    case "DI+BX":
-                                        if (MOVMemo(bx, di, ax,1)) done = true;
-                                        break;
-                                    case "DI+BP":
-                                        if (MOVMemo(bp, di, ax,1)) done = true;
-                                        break;
-                                }
-                                break;
-                            case "BX":
-                                switch (second) // Adresacja Rejestr 
-                                {
-                                    case "SI+BX":
-                                        if (MOVMemo(bx, si, bx,1)) done = true;
-                                        break;
-                                    case "SI+BP":
-                                        if (MOVMemo(bp, si, bx,1)) done = true;
-                                        break;
-                                    case "DI+BX":
-                                        if (MOVMemo(bx, di, bx,1)) done = true;
-                                        break;
-                                    case "DI+BP":
-                                        if (MOVMemo(bp, di, bx,1)) done = true;
-                                        break;
-                                }
-                                break;
-                            case "CX":
-                                switch (second) // Adresacja Rejestr 
-                                {
-                                    case "SI+BX":
-                                        if (MOVMemo(bx, si, cx,1)) done = true;
-                                        break;
-                                    case "SI+BP":
-                                        if (MOVMemo(bp, si, cx,1)) done = true;
-                                        break;
-                                    case "DI+BX":
-                                        if (MOVMemo(bx, di, cx,1)) done = true;
-                                        break;
-                                    case "DI+BP":
-                                        if (MOVMemo(bp, di, cx,1)) done = true;
-                                        break;
-                                }
-                                break;
-                            case "DX":
-                                switch (second) // Adresacja Rejestr 
-                                {
-                                    case "SI+BX":
-                                        if (MOVMemo(bx, si, dx,1)) done = true;
-                                        break;
-                                    case "SI+BP":
-                                        if (MOVMemo(bp, si, dx,1)) done = true;
-                                        break;
-                                    case "DI+BX":
-                                        if (MOVMemo(bx, di, dx,1)) done = true;
-                                        break;
-                                    case "DI+BP":
-                                        if (MOVMemo(bp, di, dx,1)) done = true;
-                                        break;
-                                }
-                                break;
-                        }
-                        break;
+                    switch (typeOfAddresation)
+                    {
+                        case "bazowy":
+                            switch (first) // Rejestr na którym jest operacja
+                            {
+                                case "AX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "BX":
+                                            if (MOVMemo(bx, "0", ax, 1)) done = true;
+                                            break;
+                                        case "BP":
+                                            if (MOVMemo(bp, "0", ax, 1)) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "BX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "BX":
+                                            if (MOVMemo(bx, "0", bx, 1)) done = true;
+                                            break;
+                                        case "BP":
+                                            if (MOVMemo(bp, "0", bx, 1)) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "CX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "BX":
+                                            if (MOVMemo(bx, "0", cx, 1)) done = true;
+                                            break;
+                                        case "BP":
+                                            if (MOVMemo(bp, "0", cx, 1)) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "DX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "BX":
+                                            if (MOVMemo(bx, "0", dx, 1)) done = true;
+                                            break;
+                                        case "BP":
+                                            if (MOVMemo(bp, "0", dx, 1)) done = true;
+                                            break;
+                                    }
+                                    break;
+                            }
+                            break;
+                        case "indeksowy":
+                            switch (first) // Rejestr na którym jest operacja
+                            {
+                                case "AX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "SI":
+                                            if (MOVMemo("0", si, ax, 1)) done = true;
+                                            break;
+                                        case "DI":
+                                            if (MOVMemo("0", di, ax, 1)) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "BX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "SI":
+                                            if (MOVMemo("0", si, bx, 1)) done = true;
+                                            break;
+                                        case "DI":
+                                            if (MOVMemo("0", di, bx, 1)) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "CX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "SI":
+                                            if (MOVMemo("0", si, cx, 1)) done = true;
+                                            break;
+                                        case "DI":
+                                            if (MOVMemo("0", di, cx, 1)) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "DX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "SI":
+                                            if (MOVMemo("0", si, dx, 1)) done = true;
+                                            break;
+                                        case "DI":
+                                            if (MOVMemo("0", di, dx, 1)) done = true;
+                                            break;
+                                    }
+                                    break;
+                            }
+                            break;
+                        case "indeksowo-bazowy":
+                            switch (first) // Rejestr na którym jest operacja
+                            {
+                                case "AX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "SI+BX":
+                                            if (MOVMemo(bx, si, ax, 1)) done = true;
+                                            break;
+                                        case "SI+BP":
+                                            if (MOVMemo(bp, si, ax, 1)) done = true;
+                                            break;
+                                        case "DI+BX":
+                                            if (MOVMemo(bx, di, ax, 1)) done = true;
+                                            break;
+                                        case "DI+BP":
+                                            if (MOVMemo(bp, di, ax, 1)) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "BX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "SI+BX":
+                                            if (MOVMemo(bx, si, bx, 1)) done = true;
+                                            break;
+                                        case "SI+BP":
+                                            if (MOVMemo(bp, si, bx, 1)) done = true;
+                                            break;
+                                        case "DI+BX":
+                                            if (MOVMemo(bx, di, bx, 1)) done = true;
+                                            break;
+                                        case "DI+BP":
+                                            if (MOVMemo(bp, di, bx, 1)) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "CX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "SI+BX":
+                                            if (MOVMemo(bx, si, cx, 1)) done = true;
+                                            break;
+                                        case "SI+BP":
+                                            if (MOVMemo(bp, si, cx, 1)) done = true;
+                                            break;
+                                        case "DI+BX":
+                                            if (MOVMemo(bx, di, cx, 1)) done = true;
+                                            break;
+                                        case "DI+BP":
+                                            if (MOVMemo(bp, di, cx, 1)) done = true;
+                                            break;
+                                    }
+                                    break;
+                                case "DX":
+                                    switch (second) // Adresacja Rejestr 
+                                    {
+                                        case "SI+BX":
+                                            if (MOVMemo(bx, si, dx, 1)) done = true;
+                                            break;
+                                        case "SI+BP":
+                                            if (MOVMemo(bp, si, dx, 1)) done = true;
+                                            break;
+                                        case "DI+BX":
+                                            if (MOVMemo(bx, di, dx, 1)) done = true;
+                                            break;
+                                        case "DI+BP":
+                                            if (MOVMemo(bp, di, dx, 1)) done = true;
+                                            break;
+                                    }
+                                    break;
+                            }
+                            break;
+                    }
                 }
-            }
 
-            if (done)
-            {
-                UpdateRegsView();
-                UpdateMemoView();
+                // MessageBox.Show($"MOV {first} {second} {direction} {typeOfAddresation}");
+
+                if (done)
+                {
+                    UpdateRegsView();
+                    UpdateMemoView(first, second);
+                }
             }
         }
 
-        void UpdateMemoView()
+        // Aktualizacja Rejestru operacj i pamięci
+        void UpdateMemoView(string reg, string based)
         {
-            foreach (ushort mem in memory) {
-                if (mem != 0)
+            if (direction == "Z rejestru do pamięci") LogList.Items.Insert(0,$"MOV [{based+ "+" +disp.ToString()}] {reg}");
+            else if (direction == "Z pamięci do rejestru") LogList.Items.Insert(0,$"MOV {reg} [{based + "+" + disp.ToString()}]");
+
+            for (int i = 0; i < memory.Length; i++)
+            {
+                if (memory[i] != 0)
                 {
-                    MemoList.Items.Add($"mem"); // Odpowiedni zapis !!!
+                    MemoList.Items.Insert(0,$"{i}: {memory[i]}");
                 }
             }
+        }
 
         /// 10. Przycisk XCHG dla pamięci
         private void XCHGMemory(object sender, RoutedEventArgs e)
@@ -815,8 +837,9 @@ namespace ASK_projekt_zaliczeniowy
             {
                 try
                 {
-                    ushort address = (ushort)(ushort.Parse(baseReg) + ushort.Parse(indexReg) + ushort.Parse(disp));
-                    memory[address] = ushort.Parse(reg);
+                    address = (ushort)(ushort.Parse(baseReg) + ushort.Parse(indexReg) + ushort.Parse(disp));
+                    memory[address] = ushort.Parse(reg.Substring(0,2));
+                    memory[address+1] = ushort.Parse(reg.Substring(2, 2));
                     return true;
                 }
                 catch 
@@ -828,7 +851,7 @@ namespace ASK_projekt_zaliczeniowy
             {
                 try
                 {
-                    ushort address = (ushort)(ushort.Parse(baseReg) + ushort.Parse(indexReg) + ushort.Parse(disp));
+                    address = (ushort)(ushort.Parse(baseReg) + ushort.Parse(indexReg) + ushort.Parse(disp));
                     switch (reg)
                     {
                         case "AX":
