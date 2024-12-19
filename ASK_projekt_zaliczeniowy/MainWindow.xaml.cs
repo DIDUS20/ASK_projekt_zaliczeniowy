@@ -28,14 +28,14 @@ namespace ASK_projekt_zaliczeniowy
         string si = "0000";
         string di = "0000";
         string bp = "0000";
-        string disp = "0000";
+        string disp = "0000"; // offset
 
         ushort address = 0;
 
-        ushort[] memory = new ushort[65536]; // pamięć
+        string?[] memory = new string[65536]; // pamięć
 
-        ushort[] stos = new ushort[65536];  // stos
-        int wskaznikStosu = 0;
+        string[] stos = new string[65536];  // stos
+        int sp = 0; //wskaznikStosu
 
         /// dla combo boxów w MOV | XCHG
         string[] regs = {"AX", "BX", "CX", "DX"};
@@ -43,7 +43,7 @@ namespace ASK_projekt_zaliczeniowy
         public MainWindow()
         { 
             InitializeComponent();
-              
+            StackPointer.Text = sp.ToString();
             // Init & Clear
             InitializeRegsInCombos();
             ClearInputs();
@@ -172,7 +172,10 @@ namespace ASK_projekt_zaliczeniowy
             // Czyszczenie wartości
             ax = bx = cx = dx = si = di = bp = disp = "0000";
             AXView.Text = BXView.Text = CXView.Text = DXView.Text = SIView.Text = DIView.Text = BPView.Text = DISPView.Text = "0000";
-            memory = new ushort[65536];
+            memory = new string[65536];
+            stos = new string[65536];
+
+            StackList.Items.Clear();
             LogList.Items.Clear();
             MemoList.Items.Clear();
             // Dodaj wpis do logu
@@ -788,7 +791,7 @@ namespace ASK_projekt_zaliczeniowy
 
                 // MessageBox.Show($"MOV {first} {second} {direction} {typeOfAddresation}");
 
-                if (done)
+                if (done && first != null && second != null)
                 {
                     UpdateRegsView();
                     UpdateMemoView(first, second);
@@ -806,7 +809,7 @@ namespace ASK_projekt_zaliczeniowy
 
             for (int i = 0; i < memory.Length; i++)
             {
-                if (memory[i] != 0)
+                if (memory[i] != null)
                 {
                     MemoList.Items.Add($"{i}: {memory[i]}");
                 }
@@ -1008,6 +1011,99 @@ namespace ASK_projekt_zaliczeniowy
             }
         }
 
+        /// 11. Przycisk PUSH stos
+        string selected = "";           // Rejestr
+        string selected_value = "";     // Wartość rejestru
+        private void StackPush(object sender, RoutedEventArgs e)
+        {
+            StackRegData();
+            if (selected != null && selected != "")
+            {
+                stos[sp] = selected_value.Substring(0,2);
+                stos[sp+1] = selected_value.Substring(2, 2);
+                sp+=2;
+
+                // Update view
+                StackPointer.Text = sp.ToString();
+                LogList.Items.Insert(0,$"PUSH {selected}");
+                UpdateStckView();
+            }
+        }
+
+        /// 12. Przycisk POP stos
+        private void StackPop(object sender, RoutedEventArgs e)
+        {
+            StackRegData();
+            if (selected != null && selected != "" && sp > 0)
+            {
+                string temp = stos[sp-2] + stos[sp-1];
+                stos[sp - 1] = "";
+                stos[sp - 2] = "";
+                switch (selected)
+                {
+                    case "AX":
+                        ax = temp;
+                        break;
+                    case "BX":
+                        bx = temp;
+                        break;
+                    case "CX":
+                        cx = temp;
+                        break;
+                    case "DX":
+                        dx = temp;
+                        break;
+                }
+                sp -= 2;
+
+                // Update view
+                StackPointer.Text = sp.ToString();
+                LogList.Items.Insert(0, $"POP {selected}");
+                UpdateRegsView();
+                UpdateStckView();
+            }
+        }
+
+        private void UpdateStckView()
+        {
+            StackList.Items.Clear();
+            for (int i = 0; i < stos.Length; i++)
+            {
+                if(stos[i] != "" && stos[i] != null)
+                {
+                    StackList.Items.Insert(0,$"{i}: {stos[i]}");
+                }
+            }
+        }
+
+        private void StackRegData()
+        {
+            ComboBoxItem combo = (ComboBoxItem)StackReg.SelectedItem;
+            if (combo != null)
+            {
+                string? s = combo.Content.ToString();
+                switch (s)
+                {
+                    case "AX":
+                        selected = "AX";
+                        selected_value = ax;
+                        break;
+                    case "BX":
+                        selected = "BX";
+                        selected_value = bx;
+                        break;
+                    case "CX":
+                        selected = "CX";
+                        selected_value = cx;
+                        break;
+                    case "DX":
+                        selected = "DX";
+                        selected_value = dx;
+                        break;
+                }
+            }
+        }
+
         // Change ushort to string 
         private string? StringHEX(string s)
         {
@@ -1032,8 +1128,8 @@ namespace ASK_projekt_zaliczeniowy
                 try
                 {
                     address = (ushort)(ushort.Parse(baseReg) + ushort.Parse(indexReg) + ushort.Parse(disp));
-                    memory[address] = ushort.Parse(reg.Substring(2,2));
-                    memory[address+1] = ushort.Parse(reg.Substring(0, 2));
+                    memory[address] = reg.Substring(2,2);
+                    memory[address+1] = reg.Substring(0, 2);
                     return true;
                 }
                 catch 
@@ -1046,26 +1142,34 @@ namespace ASK_projekt_zaliczeniowy
                 try
                 {
                     address = (ushort)(ushort.Parse(baseReg) + ushort.Parse(indexReg) + ushort.Parse(disp));
-                    string temp = memory[address + 1].ToString() + memory[address].ToString();
-                    switch (reg)
+                    if (memory[address] != null && memory[address + 1] != null)
                     {
-                        case "AX":
-                            ax = StringHEX(temp);
-                            break;
-                        case "BX":
-                            bx = StringHEX(temp);
-                            break;
-                        case "CX":
-                            cx = StringHEX(temp);
-                            break;
-                        case "DX":
-                            dx = StringHEX(temp);
-                            break;
-                    }
+                        string temp = memory[address + 1].ToString() + memory[address].ToString();
+                        string? stemp = StringHEX(temp);
 
-                    memory[address] = 0;
-                    memory[address+1] = 0;
-                    return true;
+                        if (stemp != null)
+                        {
+                            switch (reg)
+                            {
+                                case "AX":
+                                    ax = stemp;
+                                    break;
+                                case "BX":
+                                    bx = stemp;
+                                    break;
+                                case "CX":
+                                    cx = stemp;
+                                    break;
+                                case "DX":
+                                    dx = stemp;
+                                    break;
+                            }
+                        }
+
+                        memory[address] = null;
+                        memory[address + 1] = null;
+                        return true;
+                    }
                 }
                 catch
                 {
@@ -1082,33 +1186,41 @@ namespace ASK_projekt_zaliczeniowy
             try
             {
                 address = (ushort)(ushort.Parse(baseReg) + ushort.Parse(indexReg) + ushort.Parse(disp));
-                string temp = memory[address + 1].ToString() + memory[address].ToString();
-
-                switch (reg)
+                if (memory[address] != null && memory[address + 1] != null)
                 {
-                    case "AX":
-                        memory[address] = ushort.Parse(ax.Substring(2, 2));
-                        memory[address + 1] = ushort.Parse(ax.Substring(0, 2));
-                        ax = StringHEX(temp);
-                        break;
-                    case "BX":
-                        memory[address] = ushort.Parse(bx.Substring(2, 2));
-                        memory[address + 1] = ushort.Parse(bx.Substring(0, 2));
-                        bx = StringHEX(temp);
-                        break;
-                    case "CX":
-                        memory[address] = ushort.Parse(cx.Substring(2, 2));
-                        memory[address + 1] = ushort.Parse(cx.Substring(0, 2));
-                        cx = StringHEX(temp);
-                        break;
-                    case "DX":
-                        memory[address] = ushort.Parse(dx.Substring(2, 2));
-                        memory[address + 1] = ushort.Parse(dx.Substring(0, 2));
-                        dx = StringHEX(temp);
-                        break;
+                    string temp = memory[address + 1].ToString() + memory[address].ToString();
+                    string? stemp = StringHEX(temp);
+                    if (stemp != null)
+                    {
+                        switch (reg)
+                        {
+                            case "AX":
+                                memory[address] = ax.Substring(2, 2);
+                                memory[address + 1] = ax.Substring(0, 2);
+                                ax = stemp;
+                                break;
+                            case "BX":
+                                memory[address] = bx.Substring(2, 2);
+                                memory[address + 1] = bx.Substring(0, 2);
+                                bx = stemp;
+                                break;
+                            case "CX":
+                                memory[address] = cx.Substring(2, 2);
+                                memory[address + 1] = cx.Substring(0, 2);
+                                cx = stemp;
+                                break;
+                            case "DX":
+                                memory[address] = dx.Substring(2, 2);
+                                memory[address + 1] = dx.Substring(0, 2);
+                                dx = stemp;
+                                break;
 
+                        }
+                        return true;
+                    }
+                    return false;
                 }
-                return true;
+                return false;
             }
             catch
             {
