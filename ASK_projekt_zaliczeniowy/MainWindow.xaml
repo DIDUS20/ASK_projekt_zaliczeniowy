@@ -117,7 +117,7 @@
         </GroupBox>
 
         <!-- Sekcja widoku rejestrów -->
-        <GroupBox FontSize="14" Header="Podgląd Rejestrów" Margin="282,-10,645,239">
+        <GroupBox FontSize="14" Header="Podgląd Rejestrów" Margin="287,-10,640,230">
             <Grid Margin="10" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="50" />
@@ -165,14 +165,14 @@
                 <TextBlock x:Name="BPView" Grid.Row="6" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left" Text="0000"/>
 
                 <!-- Rejestr DISP -->
-                <Label Content="DISP:" Grid.Row="7" Grid.Column="0" VerticalAlignment="Center"/>
+                <Label Content="OFF:" Grid.Row="7" Grid.Column="0" VerticalAlignment="Center"/>
                 <TextBlock x:Name="DISPView" Grid.Row="7" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left" Text="0000"/>
 
             </Grid>
         </GroupBox>
 
         <!-- Sekcja edycji pamięci -->
-        <GroupBox Header="Edycja Pamięci" FontSize="14" Margin="440,-10,0,239" HorizontalAlignment="Left" Width="443">
+        <GroupBox Header="Edycja Pamięci" FontSize="14" Margin="440,-10,0,230" HorizontalAlignment="Left" Width="443">
             <Grid>
 
                 <Grid.ColumnDefinitions>
@@ -218,7 +218,7 @@
         </GroupBox>
 
         <!-- Sekcja edycji stosu -->
-        <GroupBox Header="Edycja Stosu" FontSize="14" Margin="883,-10,0,239" HorizontalAlignment="Left" Width="192">
+        <GroupBox Header="Edycja Stosu" FontSize="14" Margin="883,-10,0,230" HorizontalAlignment="Left" Width="192">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
@@ -249,14 +249,14 @@
         </GroupBox>
 
         <!-- Sekcja podglądu pamięci -->
-        <GroupBox Header="Podgląd Pamięci" FontSize="14" Margin="287,325,0,5" HorizontalAlignment="Left" Width="300">
+        <GroupBox Header="Podgląd Pamięci" FontSize="14" Margin="287,325,0,0" HorizontalAlignment="Left" Width="300">
             <Grid>
                 <ListBox x:Name="MemoList" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10" MaxWidth="500"/>
             </Grid>
         </GroupBox>
 
         <!-- Sekcja podglądu pamięci -->
-        <GroupBox Header="Podgląd Stosu" FontSize="14" Margin="587,325,0,5" HorizontalAlignment="Left" Width="296">
+        <GroupBox Header="Podgląd Stosu" FontSize="14" Margin="587,325,0,0" HorizontalAlignment="Left" Width="296">
             <Grid>
                 <ListBox x:Name="StackList" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10" MaxWidth="500"/>
             </Grid>

@@ -30,8 +30,6 @@ namespace ASK_projekt_zaliczeniowy
         string bp = "0000";
         string disp = "0000"; // offset
 
-        ushort address = 0;
-
         string?[] memory = new string[65536]; // pamięć
 
         string[] stos = new string[65536];  // stos
@@ -58,6 +56,11 @@ namespace ASK_projekt_zaliczeniowy
             group0.IsChecked = false;
             group1.IsChecked = false;
             group2.IsChecked = false;
+            SrcMOV.SelectedItem = null;
+            DestMOV.SelectedItem = null;
+            SrcXCHG.SelectedItem = null;
+            DestXCHG.SelectedItem = null;
+            StackReg.SelectedItem = null;
         }
         
         private void InitializeRegsInCombos()
@@ -793,8 +796,8 @@ namespace ASK_projekt_zaliczeniowy
 
                 if (done && first != null && second != null)
                 {
-                    UpdateRegsView();
                     UpdateMemoView(first, second);
+                    UpdateRegsView();
                 }
             }
         }
@@ -811,7 +814,7 @@ namespace ASK_projekt_zaliczeniowy
             {
                 if (memory[i] != null)
                 {
-                    MemoList.Items.Add($"{i}: {memory[i]}");
+                    MemoList.Items.Add($"{i.ToString("X")}: {memory[i]}");
                 }
             }
         }
@@ -1075,7 +1078,7 @@ namespace ASK_projekt_zaliczeniowy
                 }
             }
         }
-
+        // Wybór rejestru w operacjach na stosie
         private void StackRegData()
         {
             ComboBoxItem combo = (ComboBoxItem)StackReg.SelectedItem;
@@ -1107,14 +1110,14 @@ namespace ASK_projekt_zaliczeniowy
         // Change ushort to string 
         private string? StringHEX(string s)
         {
-            s = s.Trim();
+            s = s.Trim().ToUpper();
             ushort rec;
-            if (ushort.TryParse(s, System.Globalization.NumberStyles.HexNumber, null, out rec))
+            if (s.Length == 4 && s != "")
             {
-                if (s.Length == 1) return "000" + s;
-                else if (s.Length == 2) return "00" + s;
-                else if (s.Length == 3) return "0" + s;
-                else return s;
+                string xl = s.Substring(0, 2);
+                string xh = s.Substring(2, 2);
+
+                return xl+xh;
             }
             else return null;
             
@@ -1123,13 +1126,19 @@ namespace ASK_projekt_zaliczeniowy
         // Polecenie MOV Pamięć
         private bool MOVMemo(string baseReg , string indexReg , string reg , int kierunek = 0)
         {
+            int first = Convert.ToInt32(baseReg,16);
+            int second = Convert.ToInt32(indexReg,16);
+            int third = Convert.ToInt32(disp,16);
+            int address_one = CheckAddress(first+second+third);
+            int address_two = CheckAddress(first+second+third+1);
+
             if(kierunek == 0) // Z rejestru do pamięci
             {
                 try
                 {
-                    address = (ushort)(ushort.Parse(baseReg) + ushort.Parse(indexReg) + ushort.Parse(disp));
-                    memory[address] = reg.Substring(2,2);
-                    memory[address+1] = reg.Substring(0, 2);
+                    
+                    memory[address_one] = reg.Substring(0,2);
+                    memory[address_two] = reg.Substring(2, 2);
                     return true;
                 }
                 catch 
@@ -1141,10 +1150,7 @@ namespace ASK_projekt_zaliczeniowy
             {
                 try
                 {
-                    address = (ushort)(ushort.Parse(baseReg) + ushort.Parse(indexReg) + ushort.Parse(disp));
-                    if (memory[address] != null && memory[address + 1] != null)
-                    {
-                        string temp = memory[address + 1].ToString() + memory[address].ToString();
+                        string temp = $"{memory[address_one]}{memory[address_two]}";
                         string? stemp = StringHEX(temp);
 
                         if (stemp != null)
@@ -1166,10 +1172,10 @@ namespace ASK_projekt_zaliczeniowy
                             }
                         }
 
-                        memory[address] = null;
-                        memory[address + 1] = null;
+                        memory[address_one] = null;
+                        memory[address_two] = null;
                         return true;
-                    }
+                    
                 }
                 catch
                 {
@@ -1183,35 +1189,39 @@ namespace ASK_projekt_zaliczeniowy
         // Polecenie XCHG Pamięć
         private bool XCHGMemo(string baseReg, string indexReg, string reg, int kierunek = 0)
         {
+            int first = Convert.ToInt32(baseReg, 16);
+            int second = Convert.ToInt32(indexReg, 16);
+            int third = Convert.ToInt32(disp, 16);
+            int address_one = CheckAddress(first + second + third);
+            int address_two = CheckAddress(first + second + third+1);
             try
             {
-                address = (ushort)(ushort.Parse(baseReg) + ushort.Parse(indexReg) + ushort.Parse(disp));
-                if (memory[address] != null && memory[address + 1] != null)
+                if (memory[address_one] != null && memory[address_two] != null)
                 {
-                    string temp = memory[address + 1].ToString() + memory[address].ToString();
+                    string temp = $"{memory[address_two]}{memory[address_one]}";
                     string? stemp = StringHEX(temp);
                     if (stemp != null)
                     {
                         switch (reg)
                         {
                             case "AX":
-                                memory[address] = ax.Substring(2, 2);
-                                memory[address + 1] = ax.Substring(0, 2);
+                                memory[address_one] = ax.Substring(2, 2);
+                                memory[address_two] = ax.Substring(0, 2);
                                 ax = stemp;
                                 break;
                             case "BX":
-                                memory[address] = bx.Substring(2, 2);
-                                memory[address + 1] = bx.Substring(0, 2);
+                                memory[address_one] = bx.Substring(2, 2);
+                                memory[address_two] = bx.Substring(0, 2);
                                 bx = stemp;
                                 break;
                             case "CX":
-                                memory[address] = cx.Substring(2, 2);
-                                memory[address + 1] = cx.Substring(0, 2);
+                                memory[address_one] = cx.Substring(2, 2);
+                                memory[address_two] = cx.Substring(0, 2);
                                 cx = stemp;
                                 break;
                             case "DX":
-                                memory[address] = dx.Substring(2, 2);
-                                memory[address + 1] = dx.Substring(0, 2);
+                                memory[address_one] = dx.Substring(2, 2);
+                                memory[address_two] = dx.Substring(0, 2);
                                 dx = stemp;
                                 break;
 
@@ -1227,6 +1237,16 @@ namespace ASK_projekt_zaliczeniowy
                 return false;
             }
         }
+
+        // Sprawdzanie poprawności adresu
+        private int CheckAddress(int address)
+        {
+            if (address > 65536)       // Przepełnienie adresu
+                return (address%65536);
+            else
+                return address;
+        }
+
 
     }
 }
