@@ -31,6 +31,7 @@ namespace ASK_projekt_zaliczeniowy
         string disp = "0000"; // offset
 
         string?[] memory = new string[65536]; // pamięć
+        ushort addresation = 0;
 
         string[] stos = new string[65536];  // stos
         int sp = 0; //wskaznikStosu
@@ -350,7 +351,7 @@ namespace ASK_projekt_zaliczeniowy
 
         }
 
-        /// 5. Przycisk Random /
+        /// 5. Przycisk Random 
         private void RandomClick(object sender, RoutedEventArgs e)
         {
             Random dice = new Random();
@@ -796,19 +797,35 @@ namespace ASK_projekt_zaliczeniowy
 
                 if (done && first != null && second != null)
                 {
-                    UpdateMemoView(first, second);
+                    UpdateMemoViewMOV(first, second);
                     UpdateRegsView();
                 }
             }
         }
 
-        // Aktualizacja Rejestru operacj i pamięci
-        private void UpdateMemoView(string reg, string based)
+        // Aktualizacja Rejestru operacji i pamięci
+        private void UpdateMemoViewMOV(string reg, string based)
         {
             MemoList.Items.Clear();
 
-            if (direction == "Z rejestru do pamięci") LogList.Items.Insert(0,$"MOV [{based+ "+" +disp.ToString()}] {reg}");
+            if (direction == "Z rejestru do pamięci") LogList.Items.Insert(0,$"MOV [{based+"+"+disp.ToString()}] {reg}");
             else if (direction == "Z pamięci do rejestru") LogList.Items.Insert(0,$"MOV {reg} [{based + "+" + disp.ToString()}]");
+
+            for (int i = 0; i < memory.Length; i++)
+            {
+                if (memory[i] != null)
+                {
+                    MemoList.Items.Add($"{i.ToString("X")}: {memory[i]}");
+                }
+            }
+        }
+
+        private void UpdateMemoViewXCHG(string reg, string based)
+        {
+            MemoList.Items.Clear();
+
+            if (direction == "Z rejestru do pamięci") LogList.Items.Insert(0, $"XChG [{based + "+" + disp.ToString()}] {reg}");
+            else if (direction == "Z pamięci do rejestru") LogList.Items.Insert(0, $"XCHG {reg} [{based + "+" + disp.ToString()}]");
 
             for (int i = 0; i < memory.Length; i++)
             {
@@ -1009,7 +1026,7 @@ namespace ASK_projekt_zaliczeniowy
                 if (done && first != null && second != null)
                 {
                     UpdateRegsView();
-                    UpdateMemoView(first, second);
+                    UpdateMemoViewXCHG(first, second);
                 }
             }
         }
@@ -1107,17 +1124,21 @@ namespace ASK_projekt_zaliczeniowy
             }
         }
 
-        // Change ushort to string 
+        // Sprawdź input string 
         private string? StringHEX(string s)
         {
             s = s.Trim().ToUpper();
-            ushort rec;
+            char[] alphabet = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+
             if (s.Length == 4 && s != "")
             {
-                string xl = s.Substring(0, 2);
-                string xh = s.Substring(2, 2);
+                foreach (char c in s)
+                {
+                    if (!alphabet.Contains(c))
+                        return null;
+                }
 
-                return xl+xh;
+                return s;
             }
             else return null;
             
@@ -1137,8 +1158,8 @@ namespace ASK_projekt_zaliczeniowy
                 try
                 {
                     
-                    memory[address_one] = reg.Substring(0,2);
-                    memory[address_two] = reg.Substring(2, 2);
+                    memory[address_one] = reg.Substring(2,2);
+                    memory[address_two] = reg.Substring(0, 2);
                     return true;
                 }
                 catch 
@@ -1150,7 +1171,7 @@ namespace ASK_projekt_zaliczeniowy
             {
                 try
                 {
-                        string temp = $"{memory[address_one]}{memory[address_two]}";
+                        string temp = $"{memory[address_two]}{memory[address_one]}";
                         string? stemp = StringHEX(temp);
 
                         if (stemp != null)
@@ -1241,6 +1262,7 @@ namespace ASK_projekt_zaliczeniowy
         // Sprawdzanie poprawności adresu
         private int CheckAddress(int address)
         {
+            addresation = Convert.ToUInt16(address);
             if (address > 65536)       // Przepełnienie adresu
                 return (address%65536);
             else
