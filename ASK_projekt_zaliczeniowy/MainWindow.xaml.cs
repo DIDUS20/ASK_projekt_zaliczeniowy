@@ -31,7 +31,6 @@ namespace ASK_projekt_zaliczeniowy
         string disp = "0000"; // offset
 
         string?[] memory = new string[65536]; // pamięć
-        ushort addresation = 0;
 
         string[] stos = new string[65536];  // stos
         int sp = 0; //wskaznikStosu
@@ -1262,9 +1261,9 @@ namespace ASK_projekt_zaliczeniowy
         // Sprawdzanie poprawności adresu
         private int CheckAddress(int address)
         {
-            addresation = Convert.ToUInt16(address);
-            if (address > 65536)       // Przepełnienie adresu
-                return (address%65536);
+            
+            if (address > 65536)// Przepełnienie adresu
+                return (address%65536);  
             else
                 return address;
         }
